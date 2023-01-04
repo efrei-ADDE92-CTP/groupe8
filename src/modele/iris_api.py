@@ -3,8 +3,8 @@ import joblib
 import numpy as np
 import json
 
-
-knn = joblib.load('modele/iris_knn.pkl')
+with open('src/modele/iris_knn.pkl', 'rb') as file:
+    knn = joblib.load(file)
 app = Flask(__name__)
 
 
@@ -26,4 +26,4 @@ def predict():
 
 if __name__ == '__main__':
 
-    app.run(port=8080, debug=False)
+    app.run(host='0.0.0.0', port=8080, debug=False)
