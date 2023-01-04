@@ -16,4 +16,31 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build Docker image
         run: docker build --tag iris_project -f Dockerfile .
+      
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: build image and push
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+        run: ./mvnw clean package
+
+      - name: Deploy to Azure Container Instances
+        uses: 'azure/aci-deploy@v1'
+        with:
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
+          dns-name-label: devops-20211018
+          image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/20211018:v1
+          registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+          name: 20211018
+          ports:
+            00
+          location: 'france central'
 
