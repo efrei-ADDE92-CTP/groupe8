@@ -37,7 +37,7 @@ jobs:
         with:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           image: iris-project-grp8:latest
-          name: iris-project-grp8
+          name: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           location: francecentral
           dns-name-label: iris8
           ports: 8080
