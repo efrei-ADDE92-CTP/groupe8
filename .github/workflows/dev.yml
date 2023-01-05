@@ -39,6 +39,7 @@ jobs:
           container-registry: efreiprediction.azurecr.io
           image: iris_project_grp8:latest
           container-name: iris_project_grp8
+          location: francecentral
           azure-region: France Central
           dns-name-label: iris_project_grp8
           ports: 8080
