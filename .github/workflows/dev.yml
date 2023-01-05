@@ -1,4 +1,4 @@
-name: DEV CI
+name: CI
 
 on:
   push:
@@ -10,33 +10,51 @@ on:
       - main
 
 jobs:
-  build:
+  build_and_push:
     runs-on: ubuntu-latest
     steps:
+      # Check out the code
       - uses: actions/checkout@v2
 
-      - name: Install Azure CLI
-        run: |
-          AZ_REPO=$(lsb_release -cs)
-          echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
-              sudo tee /etc/apt/sources.list.d/azure-cli.list
-          curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          sudo apt-get update
-          sudo apt-get install azure-cli
-
+      # Login to Azure
       - name: Login via Azure CLI
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # Build the Docker image
+      - name: Build image
+        run: docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/classifier_group8:latest
+
+      # Push the image to Azure Container Registry (ACR)
       - name: "Login to ACR"
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Push image
+        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/classifier_group8:latest
 
-      - name: build image and push
-        run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/classifier_g${{ secrets.GROUPE }}:v1
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/classifier_g${{ secrets.GROUPE }}:v1
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Login to Azure
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Deploy the container to Azure Container Instances (ACI)
+      - name: Deploy to ACI
+        uses: azure/aci-deploy@v1
+        with:
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
+          container-registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          image: classifier_group8:latest
+          container-name: classifier_group8
+          region: westus
+          ports: 80
+          auto-scale: true
+          cpu: 1
+          memory: 1.5
