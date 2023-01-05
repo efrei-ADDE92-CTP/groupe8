@@ -13,10 +13,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Check out the code
       - uses: actions/checkout@v2
 
-      # Push the image to Azure Container Registry (ACR)
       - name: Login to ACR
         uses: azure/docker-login@v1
         with:
@@ -24,11 +22,15 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      # Build the Docker image
       - name: Build and push image
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris_project_grp8:latest
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris_project_grp8:latest
+
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy image to ACI
         uses: azure/aci-deploy@v1
