@@ -16,16 +16,6 @@ jobs:
       # Check out the code
       - uses: actions/checkout@v2
 
-      # Login to Azure
-      - name: Login via Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # Build the Docker image
-      - name: Build image
-        run: docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/classifier_group8:latest
-
       # Push the image to Azure Container Registry (ACR)
       - name: "Login to ACR"
         uses: azure/docker-login@v1
@@ -33,28 +23,22 @@ jobs:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-      - name: Push image
-        run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/classifier_group8:latest
 
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      # Login to Azure
-      - name: Login via Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # Build the Docker image
+      - name: Build and push image
+        run: |
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris_project_grp8:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris_project_grp8:latest
 
-      # Deploy the container to Azure Container Instances (ACI)
-      - name: Deploy to ACI
+      - name: Deploy image to ACI
         uses: azure/aci-deploy@v1
         with:
+          azure-subscription: ${{ secrets.AZURE_CREDENTIALS }}
+          azure-region: France Central
           resource-group: ${{ secrets.RESOURCE_GROUP }}
-          container-registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          image: classifier_group8:latest
-          container-name: classifier_group8
-          region: westus
-          ports: 80
+          acr-name: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          image-name: iris_project_grp8
+          dns-name-label: iris_project_grp8
+          ports: 8080
           auto-scale: true
-          cpu: 1
-          memory: 1.5
+          auto-scale-rule: "NumberOfIncomingRequests > 100"
