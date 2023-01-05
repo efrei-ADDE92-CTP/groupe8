@@ -32,15 +32,14 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy image to ACI
+      - name: Deploy to ACI
         uses: azure/aci-deploy@v1
         with:
-          azure-subscription: ${{ secrets.AZURE_CREDENTIALS }}
-          azure-region: France Central
           resource-group: ${{ secrets.RESOURCE_GROUP }}
-          acr-name: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          image-name: iris_project_grp8
-          dns-name-label: iris_project_grp8
+          container-registry: efreiprediction.azurecr.io
+          image: iris_project_grp8:latest
+          container-name: iris_project_grp8
+          azure-region: France Central
           ports: 8080
           auto-scale: true
           auto-scale-rule: "NumberOfIncomingRequests > 100"
