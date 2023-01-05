@@ -39,7 +39,7 @@ jobs:
           image: iris_project_grp8:latest
           name: iris_project_grp8
           location: francecentral
-          dns-name-label: iris_project_grp8
+          dns-name-label: iris8
           ports: 8080
           auto-scale: true
           auto-scale-rule: "NumberOfIncomingRequests > 100"
