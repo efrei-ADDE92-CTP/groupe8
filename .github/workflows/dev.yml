@@ -27,11 +27,6 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: setup azure cli
-        uses: azure/setup-azure-cli@v1
-        with:
-          azure-cli-version: latest
-
       - name: Build and push image
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-project-grp8:latest
