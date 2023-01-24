@@ -32,13 +32,9 @@ jobs:
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-project-grp8:latest
           az acr build --registry ${{ secrets.REGISTRY_LOGIN_SERVER }} --image iris-project-grp8:latest .
 
-      - name: Deploy to Azure Container App
-        uses: azure/ACR-Deploy@v1
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v0
         with:
-          acr-name: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          image-name: iris-project-grp8:latest
-          resource-group: ${{ secrets.RESOURCE_GROUP }}
-          app-name: ContainerGroup8
-          tenant-id: ${{ secrets.AZURE_CREDENTIALS.tenantId }}
-          client-id: ${{ secrets.AZURE_CREDENTIALS.clientId }}
-          client-secret: ${{ secrets.AZURE_CREDENTIALS.clientSecret }}
+          appSourcePath: ${{ github.workspace }}
+          acrName: iris-project-grp8
+          imageToBuild: iris-project-grp8:latest
