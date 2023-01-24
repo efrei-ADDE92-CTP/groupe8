@@ -37,4 +37,4 @@ jobs:
         with:
           appSourcePath: ${{ github.workspace }}
           acrName: ${{ secrets.RESOURCE_GROUP }}
-          imageToBuild: ${{ secrets.REGISTRY_LOGIN_SERVER }}/classifier_g${{ secrets.GROUPE }}:v1
+          imageToBuild: ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-project-grp8:latest
