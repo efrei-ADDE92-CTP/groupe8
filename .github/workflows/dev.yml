@@ -1,4 +1,4 @@
-name: DEV CI
+name: CI
 
 on:
   push:
@@ -14,6 +14,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build Docker image
-        run: docker build --tag iris_project -f Dockerfile .
 
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push image
+        run: |
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-project-grp8:latest
+          az acr build --registry ${{ secrets.REGISTRY_LOGIN_SERVER }} --image iris-project-grp8:latest .
