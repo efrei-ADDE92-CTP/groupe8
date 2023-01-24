@@ -38,3 +38,14 @@ jobs:
           containerAppName: ContainerGrp8
           resourceGroup: ${{ secrets.RESOURCE_GROUP }}
           imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-project-grp8:latest
+
+      - name: Configure Autoscaling
+        run: |
+          az containerapp create \
+          --resource-group ${{ secrets.RESOURCE_GROUP }} \
+          --name ContainerGrp8-autoscale \
+          --min-replicas 0 \
+          --max-replicas 5 \
+          --scale-rule-name azure-http-rule \
+          --scale-rule-type http \
+          --scale-rule-http-concurrency 100
