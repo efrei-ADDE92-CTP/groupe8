@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 import joblib
 import numpy as np
 import json
+from prometheus_client import Counter
+
+predict_counter = Counter('predict_requests', 'Number of requests to the predict endpoint')
 
 with open('src/modele/iris_knn.pkl', 'rb') as file:
     knn = joblib.load(file)
@@ -10,6 +13,10 @@ app = Flask(__name__)
 
 @app.route('/predict', methods=['POST'])
 def predict():
+
+    # incrémente le compteur
+    predict_counter.inc()
+
     # obtenir les données de la requête
     data = request.get_json(force=True)
 
@@ -21,6 +28,11 @@ def predict():
     response = {'prediction': prediction_list}
 
     print(response)
+    return jsonify(response)
+
+@app.route('/metrics', methods=['GET'])
+def get_counter():
+    response = {'counter': predict_counter}
     return jsonify(response)
 
 
