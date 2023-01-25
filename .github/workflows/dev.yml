@@ -31,3 +31,24 @@ jobs:
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-project-grp8:latest
           az acr build --registry ${{ secrets.REGISTRY_LOGIN_SERVER }} --image iris-project-grp8:latest .
+
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v0
+        with:
+          containerAppName: container-grp8
+          resourceGroup: ${{ secrets.RESOURCE_GROUP }}
+          imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-project-grp8:latest
+          containerAppEnvironment: grp8-env
+
+      - name: Configure Autoscaling
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az containerapp update \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --name container-grp8 \
+            --min-replicas 0 \
+            --max-replicas 5 \
+            --scale-rule-name azure-http-rule \
+            --scale-rule-type http \
+            --scale-rule-http-concurrency 100
