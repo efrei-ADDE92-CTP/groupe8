@@ -46,7 +46,7 @@ jobs:
           inlineScript: |
             az containerapp update \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --name ContainerGrp8-autoscale \
+            --name container-grp8 \
             --min-replicas 0 \
             --max-replicas 5 \
             --scale-rule-name azure-http-rule \
