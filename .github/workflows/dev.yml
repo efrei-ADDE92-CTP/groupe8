@@ -41,12 +41,14 @@ jobs:
           containerAppEnvironment: grp8-env
 
       - name: Configure Autoscaling
-        run: |
-          az containerapp create \
-          --resource-group ${{ secrets.RESOURCE_GROUP }} \
-          --name ContainerGrp8-autoscale \
-          --min-replicas 0 \
-          --max-replicas 5 \
-          --scale-rule-name azure-http-rule \
-          --scale-rule-type http \
-          --scale-rule-http-concurrency 100
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az containerapp create \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --name ContainerGrp8-autoscale \
+            --min-replicas 0 \
+            --max-replicas 5 \
+            --scale-rule-name azure-http-rule \
+            --scale-rule-type http \
+            --scale-rule-http-concurrency 100
