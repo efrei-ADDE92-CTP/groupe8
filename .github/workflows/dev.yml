@@ -44,7 +44,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az containerapp create \
+            az containerapp update \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
             --name ContainerGrp8-autoscale \
             --min-replicas 0 \
