@@ -4,7 +4,8 @@ import numpy as np
 import json
 from prometheus_client import Counter
 
-predict_counter = Counter('predict_requests', 'Number of requests to the predict endpoint')
+predict_counter = Counter(
+    'predict_requests', 'Number of requests to the predict endpoint')
 
 with open('src/modele/iris_knn.pkl', 'rb') as file:
     knn = joblib.load(file)
@@ -30,9 +31,10 @@ def predict():
     print(response)
     return jsonify(response)
 
+
 @app.route('/metrics', methods=['GET'])
 def get_counter():
-    response = {'counter': predict_counter}
+    response = {'counter': predict_counter.inc()}
     return jsonify(response)
 
 
