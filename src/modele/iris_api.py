@@ -34,7 +34,7 @@ def predict():
 
 @app.route('/metrics', methods=['GET'])
 def get_counter():
-    response = {'counter': predict_counter.inc()}
+    response = {'counter': predict_counter._value}
     return jsonify(response)
 
 
