@@ -3,9 +3,12 @@ import joblib
 import numpy as np
 import json
 from prometheus_client import Counter, Histogram
+import time
 
-predict_counter = Counter('predict_requests', 'Number of requests to the predict endpoint')
-predict_duration = Histogram('predict_duration_seconds', 'Time taken to handle a predict request', ['method'])
+predict_counter = Counter(
+    'predict_requests', 'Number of requests to the predict endpoint')
+predict_duration = Histogram(
+    'predict_duration_seconds', 'Time taken to handle a predict request', ['method'])
 
 with open('src/modele/iris_knn.pkl', 'rb') as file:
     knn = joblib.load(file)
@@ -14,12 +17,9 @@ app = Flask(__name__)
 
 @app.route('/predict', methods=['POST'])
 def predict():
-
+    request_start = time.time()
     # incrémente le compteur
     predict_counter.inc()
-
-    # obtenir la durée de la requête
-    predict_duration.labels('post').observe(time.time() - request_start)
 
     # obtenir les données de la requête
     data = request.get_json(force=True)
@@ -31,6 +31,9 @@ def predict():
     prediction_list = json.dumps(prediction.tolist())
     response = {'prediction': prediction_list}
 
+    # obtenir la durée de la requête
+    predict_duration.labels('post').observe(time.time() - request_start)
+
     print(response)
     return jsonify(response)
 
@@ -40,9 +43,11 @@ def get_counter():
     response = {'counter': int(predict_counter._value)}
     return jsonify(response)
 
+
 @app.route('/metrics/duration', methods=['GET'])
 def get_duration():
-    response = {'duration': predict_duration._value}
+    response = {'duration': {
+        'sum': predict_duration._sum, 'count': predict_duration._count}}
     return jsonify(response)
 
 

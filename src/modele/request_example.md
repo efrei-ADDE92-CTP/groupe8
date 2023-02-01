@@ -4,6 +4,7 @@ curl --location --request POST 'http://localhost:8080/predict' \
 
 curl --location --request GET 'http://localhost:8080/metrics/counter'
 
+curl --location --request GET 'http://localhost:8080/metrics/duration'
 
 docker build --tag iris_project -f Dockerfile .
 
