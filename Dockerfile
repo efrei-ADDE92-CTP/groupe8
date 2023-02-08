@@ -1,8 +1,5 @@
 FROM python:3.8.13
 
-RUN apt update
-RUN apt install python3
-
 # set the working directory in the container
 WORKDIR /src
 
