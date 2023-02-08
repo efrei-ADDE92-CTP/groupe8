@@ -49,14 +49,14 @@ def predict():
 def get_counter():
     response = prometheus_client.generate_latest(
         predict_counter).decode("utf-8")
-    return jsonify(response)
+    return response  # todo remove jsonify
 
 
 @app.route('/metrics/duration', methods=['GET'])
 def get_duration():
     response = prometheus_client.generate_latest(
         predict_duration).decode("utf-8")
-    return jsonify(response)
+    return response
 
 
 if __name__ == '__main__':
