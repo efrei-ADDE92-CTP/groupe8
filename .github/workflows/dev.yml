@@ -27,6 +27,11 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
+      - name: hadolint
+        uses: hadolint/hadolint-action@v2.0.0
+        with:
+          dockerfile: dockerfile
+
       - name: Build and push image
         run: |
           docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-project-grp8:latest

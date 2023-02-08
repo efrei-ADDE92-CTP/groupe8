@@ -20,8 +20,6 @@ app = Flask(__name__)
 @app.route('/predict', methods=['POST'])
 def predict():
     request_start = time.time()
-    # incrémente le compteur
-    predict_counter.inc()
 
     # obtenir les données de la requête
     data = request.get_json(force=True)
@@ -34,35 +32,30 @@ def predict():
 
     # préparer la réponse
     prediction_list = json.dumps(prediction.tolist())
-    response = {'prediction': iris_labels[prediction[0]]}
+    iris_predicted = iris_labels[prediction[0]]
+    response = {'prediction': iris_predicted}
 
+    # incrémente le compteur
+    predict_counter.inc()
     # obtenir la durée de la requête
-    predict_duration.labels('post').observe(time.time() - request_start)
+    predict_duration.labels(iris_predicted).observe(
+        time.time() - request_start)
 
     print(response)
     return jsonify(response)
 
 
-@app.route('/metrics/counter', methods=['GET'])
+@app.route('/metrics', methods=['GET'])
 def get_counter():
-    #response = {'counter': prometheus_client.generate_latest(predict_counter)}
-    counter_string = prometheus_client.generate_latest(
+    response = prometheus_client.generate_latest(
         predict_counter).decode("utf-8")
-    match = re.search(r'predict_requests_total (\d+\.\d+)', counter_string)
-    counter_value = float(match.group(1))
-    response = {'counter': counter_value}
     return jsonify(response)
 
 
 @app.route('/metrics/duration', methods=['GET'])
 def get_duration():
-    response = {'duration': prometheus_client.generate_latest(
-        predict_duration).decode("utf-8")}
-    # return jsonify(response)
-    #counter_string = prometheus_client.generate_latest(predict_counter).decode("utf-8")
-    #match = re.search(r'predict_requests_total (\d+\.\d+)', counter_string)
-    #counter_value = float(match.group(1))
-    #response = {'duration': counter_value}
+    response = prometheus_client.generate_latest(
+        predict_duration).decode("utf-8")
     return jsonify(response)
 
 
